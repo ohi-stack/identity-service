@@ -12,7 +12,7 @@ app.use(express.json());
 
 /**
  * Global request boundary
- * (later: tracing, rate limits, audit, tenant resolution)
+ * (later: tracing, rate limits, audit)
  */
 app.use((req, res, next) => {
   res.setHeader('X-OHI-Service', 'identity');
@@ -20,7 +20,11 @@ app.use((req, res, next) => {
 });
 
 /**
+ * Tenant resolution (mandatory for identity safety)
+ */
 app.use(tenantContext);
+
+/**
  * Routes
  */
 app.use('/auth', authRoutes);
