@@ -1,3 +1,4 @@
+import { tenantContext } from './middleware/tenantContext.js';
 import express from 'express';
 
 import authRoutes from './routes/auth.js';
@@ -19,6 +20,7 @@ app.use((req, res, next) => {
 });
 
 /**
+app.use(tenantContext);
  * Routes
  */
 app.use('/auth', authRoutes);
