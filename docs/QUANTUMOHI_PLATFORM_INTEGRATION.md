@@ -7,7 +7,7 @@ The QuantumOHI Platform is the public/application surface for governed intellige
 Current preview/application surface:
 - https://quantumohi-platform.onegodian.chatgpt.site
 
-Target canonical application repository:
+Canonical application repository:
 - `ohi-stack/quantumohi-platform`
 
 The target repository is intentionally separate from service/runtime repositories.
@@ -77,4 +77,4 @@ It should not become a monorepo copy of every OHI service.
 
 ## Status
 
-This contract prepares existing OHI repositories for the dedicated QuantumOHI Platform repository. When `ohi-stack/quantumohi-platform` becomes available in the connected GitHub installation, it should adopt this contract as its initial integration boundary.
+This contract aligns this service with the dedicated `ohi-stack/quantumohi-platform` application repository. The platform repository is now established and owns the application surface; this repository remains an independently deployable service.
