@@ -49,3 +49,13 @@ All downstream services must:
 3. Treat tenant context as authoritative from verified claims
 
 No service may issue, mutate, or self-sign identity tokens.
+
+## QuantumOHI Platform Integration
+
+This service is a backend authority dependency of the QuantumOHI Platform. It is not the platform UI and must remain independently deployable.
+
+- Current platform preview: `quantumohi-platform.onegodian.chatgpt.site`
+- Target platform repository: `ohi-stack/quantumohi-platform`
+- Integration contract: [docs/QUANTUMOHI_PLATFORM_INTEGRATION.md](docs/QUANTUMOHI_PLATFORM_INTEGRATION.md)
+
+The platform must consume identity through documented service contracts. It must not issue, mutate, or self-sign identity tokens in frontend/application code.
