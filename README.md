@@ -1,5 +1,6 @@
 # identity-service
 Canonical identity, authentication, and tenant authorization service for the QuantumOHI platform. Issues tenant-aware JWTs and serves as the sole identity authority for all execution and infrastructure systems.
+
 ## Status
 
 This service is intentionally implemented using a **contract-first architecture**.
@@ -8,9 +9,8 @@ This service is intentionally implemented using a **contract-first architecture*
 - Route boundaries are established
 - Cryptographic issuance and verification are intentionally deferred
 
-This allows dependent systems to integrate against stable identity contracts
-before the underlying key management, signing strategy, or HSM/KMS provider
-is finalized.
+This allows dependent systems to integrate against stable identity contracts before the underlying key management, signing strategy, or HSM/KMS provider is finalized.
+
 ## Responsibilities
 
 This service is responsible for:
@@ -25,6 +25,7 @@ This service is **not** responsible for:
 - Business authorization logic
 - Domain-specific role interpretation
 - UI authentication flows
+
 ## Service Contracts
 
 ### Token Authority
@@ -40,6 +41,7 @@ Defined in: `src/services/tokenService.js`
   - Enforces tenant, issuer, and audience claims
 
 > Implementation is deferred by design.
+
 ## Usage Pattern
 
 All downstream services must:
@@ -54,8 +56,11 @@ No service may issue, mutate, or self-sign identity tokens.
 
 This service is a backend authority dependency of the QuantumOHI Platform. It is not the platform UI and must remain independently deployable.
 
-- Current platform preview: `quantumohi-platform.onegodian.chatgpt.site`
-- Target platform repository: `ohi-stack/quantumohi-platform`
+- Production application surface: `https://quantumohi.com`
+- ChatGPT Sites content/source reference: `https://quantumohi-platform.onegodian.chatgpt.site`
+- Canonical platform repository: `ohi-stack/quantumohi-platform`
 - Integration contract: [docs/QUANTUMOHI_PLATFORM_INTEGRATION.md](docs/QUANTUMOHI_PLATFORM_INTEGRATION.md)
+
+The platform repository now carries the restored Platform Directory content and maturity/authority records derived from the August 14, 2026 source export. Identity remains an independent backend authority and must not be duplicated in the frontend.
 
 The platform must consume identity through documented service contracts. It must not issue, mutate, or self-sign identity tokens in frontend/application code.
