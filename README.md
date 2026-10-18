@@ -1,66 +1,59 @@
-# identity-service
-Canonical identity, authentication, and tenant authorization service for the QuantumOHI platform. Issues tenant-aware JWTs and serves as the sole identity authority for all execution and infrastructure systems.
+# QuantumOHI™ Identity Service
 
-## Status
+**Founder / architect:** One Gregory Onegodian™  
+**Current package version:** 0.1.0  
+**Maturity:** SPECIFICATION / CONTRACT-FIRST — **NOT PRODUCTION**
 
-This service is intentionally implemented using a **contract-first architecture**.
+The `identity-service` repository defines the canonical identity and authentication boundary for the QuantumOHI Platform. It is designed to establish authenticated human, organization, and workload identities so downstream governance and execution services can evaluate requests against declared policies.
 
-- Public service interfaces are defined
-- Route boundaries are established
-- Cryptographic issuance and verification are intentionally deferred
+> Identity answers **who or what is making the request**. The OHI Control Plane evaluates **what that principal may do**. The Execution Gateway performs only governed, approved work.
 
-This allows dependent systems to integrate against stable identity contracts before the underlying key management, signing strategy, or HSM/KMS provider is finalized.
+## Source status
 
-## Responsibilities
+This is a Node.js / Express scaffold with HTTP routes and an integration contract. The current login/logout, token issue/verify, and tenant management routes return `501 Not Implemented`. Cryptographic token issuance and validation are **not deployed in this repo**. Do not point customer authentication at these placeholders or represent the service as production-ready.
 
-This service is responsible for:
+The `GET /health` route is a **liveness response only**, not proof that authentication, tenancy, key management, or database dependencies are available. A separate verified readiness contract is required before production.
 
-- Tenant resolution and isolation
-- Subject identity canonicalization
-- Token issuance (tenant-bound)
-- Token verification (issuer + audience enforcement)
-- Acting as the **single source of identity truth** for all QuantumOHI services
+### Security correction in the October 18, 2026 proposal
 
-This service is **not** responsible for:
-- Business authorization logic
-- Domain-specific role interpretation
-- UI authentication flows
+The original resolver trusted `x-tenant-id` and `?tenant=` and used a default tenant. The hardening branch introduces `src/middleware/tenantContext.js`, which assigns tenant scope **only from a trusted server-set `req.verifiedIdentity` principal with an explicit tenant ID**. Anonymous requests and arbitrary caller tenant hints produce `req.tenant === null`. There is **no verifier middleware yet**, so this remains a safe scaffold, not a complete authorization layer.
 
-## Service Contracts
+Run:
 
-### Token Authority
+```bash
+npm install
+npm test
+npm run check
+npm start
+```
 
-Defined in: `src/services/tokenService.js`
+The initial tests exercise tenant-context rules, including forged header/query tenant hints. Full startup, integration, CI, infrastructure and public-domain acceptance require independent evidence.
 
-- `issueToken(params)`
-  - Issues a tenant-bound token
-  - Enforces issuer and audience constraints
+## Existing API placeholders
 
-- `verifyToken(token)`
-  - Verifies token integrity and validity
-  - Enforces tenant, issuer, and audience claims
+- `POST /auth/login` — returns 501
+- `POST /auth/logout` — returns 501
+- `POST /token/issue` — returns 501
+- `POST /token/verify` — returns 501
+- `POST /tenant/register` — returns 501
+- `GET /tenant/:tenantId` — returns 501
+- `GET /health` — liveness only
 
-> Implementation is deferred by design.
+Do not infer an operational OAuth/OIDC issuer from these route names.
 
-## Usage Pattern
+## Canonical integration
 
-All downstream services must:
+- Public application and product UX: `ohi-stack/quantumohi-platform`, target `https://quantumohi.com`
+- Identity and authentication: `ohi-stack/identity-service`
+- Governance and policy decisions: `ohi-stack/ohi-control-plane`
+- Execution: approved, verified OHI Execution Gateway
+- Records: correlated identity, governance, execution and audit events
 
-1. Accept bearer tokens only
-2. Delegate verification to identity-service
-3. Treat tenant context as authoritative from verified claims
+The service remains independently deployable. Production URL variables must remain blank until real service endpoints are validated. No service can manufacture identity authority by passing a query parameter, arbitrary header, or unsigned JWT.
 
-No service may issue, mutate, or self-sign identity tokens.
+## Documentation
 
-## QuantumOHI Platform Integration
+- [QuantumOHI Platform integration contract](docs/QUANTUMOHI_PLATFORM_INTEGRATION.md)
+- [October 18, 2026 upgrade specification — APIs, security, operations, UI/UX, services and commercial packages](docs/IDENTITY_SERVICE_UPGRADE_2026-10-18.md)
 
-This service is a backend authority dependency of the QuantumOHI Platform. It is not the platform UI and must remain independently deployable.
-
-- Production application surface: `https://quantumohi.com`
-- ChatGPT Sites content/source reference: `https://quantumohi-platform.onegodian.chatgpt.site`
-- Canonical platform repository: `ohi-stack/quantumohi-platform`
-- Integration contract: [docs/QUANTUMOHI_PLATFORM_INTEGRATION.md](docs/QUANTUMOHI_PLATFORM_INTEGRATION.md)
-
-The platform repository now carries the restored Platform Directory content and maturity/authority records derived from the August 14, 2026 source export. Identity remains an independent backend authority and must not be duplicated in the frontend.
-
-The platform must consume identity through documented service contracts. It must not issue, mutate, or self-sign identity tokens in frontend/application code.
+**Next gate:** reproduce a clean build, verify actual runtime health, select and integrate an approved authentication/identity provider, implement tenant-scoped storage and permissions, complete the security test suite, and verify the full `Identity → Governance → Execution → Record` chain before production classification.
