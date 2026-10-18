@@ -1,0 +1,42 @@
+name: Identity Service CI
+
+on:
+  push:
+    branches: [main, "upgrade/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-scaffold:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Use Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund --no-package-lock
+      - name: Syntax check
+        run: npm run check
+      - name: Unit tests
+        run: npm test
+      - name: Server liveness smoke check
+        shell: bash
+        run: |
+          PORT=33551 node src/server.js > /tmp/identity-server.log 2>&1 &
+          PID=$!
+          trap 'kill "$PID" 2>/dev/null || true' EXIT
+          for i in {1..25}; do
+            if curl -fsS http://127.0.0.1:33551/health >/tmp/identity-health.json; then
+              node -e 'const h=require("/tmp/identity-health.json"); if(h.service!=="identity-service" || h.status!=="ok") process.exit(1)'
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/identity-server.log
+          exit 1
